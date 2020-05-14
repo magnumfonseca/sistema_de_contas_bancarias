@@ -14,6 +14,7 @@ gem 'jwt'
 # gem 'rack-cors'
 
 group :development, :test do
+  gem 'shoulda-matchers'
   gem 'rspec-rails', '~> 4.0.0'
   gem 'dotenv-rails'
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
