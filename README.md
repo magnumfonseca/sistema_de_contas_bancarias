@@ -1,5 +1,9 @@
 # README
 
+## Status CI
+![](https://github.com/magnumfonseca/sistema_de_contas_bancarias/workflows/CI/badge.svg)
+
+
 This README would normally document whatever steps are necessary to get the
 application up and running.
 
