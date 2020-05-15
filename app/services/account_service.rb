@@ -2,17 +2,17 @@ require 'json_web_token'
 
 class AccountService
   class << self
-    def open(account_params)
+    def find(account_params)
       account = Account.find_by_id(account_params[:id])
 
-      return { id: account.id, token: generate_token(account.id) } unless account.nil?
+      return nil unless account
 
-      create_new_account(account_params)
+      puts "Found a account with #{account.attributes}"
+
+      { id: account.id, token: generate_token(account.id) }
     end
 
-    private
-
-    def create_new_account(account_params)
+    def open(account_params)
       puts "Creating a account with #{account_params}"
 
       account = Account.new(account_params)
@@ -21,6 +21,8 @@ class AccountService
 
       account.attributes.symbolize_keys.merge(token: generate_token(account.id))
     end
+
+    private
 
     def generate_token(account_id)
       JsonWebToken.encode({ id: account_id })
