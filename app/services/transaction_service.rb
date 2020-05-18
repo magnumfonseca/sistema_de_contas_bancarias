@@ -25,18 +25,13 @@ class TransactionService
       transaction = generate_transaction(source_account, destination_account, amount)
       transaction.debit!
 
-      source_account.update(balance: transaction_result) 
-
       @logger.info("#{amount} debited to account #{source_account.id}")
     end
 
     def credit(source_account, destination_account, amount)
-      transaction_result = destination_account.balance + BigDecimal(amount.to_s)
-
       transaction = generate_transaction(source_account, destination_account, amount)
       transaction.credit!
 
-      destination_account.update(balance: transaction_result)
 
       @logger.info("#{amount} credited to account #{destination_account.id}")
     end

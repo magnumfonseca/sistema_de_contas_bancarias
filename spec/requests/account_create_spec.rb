@@ -1,12 +1,12 @@
 require 'rails_helper'
 
-RSpec.describe "Account Create", type: :request do
+RSpec.describe 'Account Create', type: :request do
   describe 'post' do
     let(:account_params) { { id: account_id, name: 'xpto', balance: 10.22 } }
 
     context 'account alread exists' do 
       let!(:account_id) { rand(1..10) }
-      let!(:account) { Account.create(account_params) }
+      let!(:account) { AccountService.open(account_params) }
 
       it 'returns id an token' do
         post '/api/accounts', params: { account: account_params }

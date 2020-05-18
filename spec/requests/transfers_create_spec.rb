@@ -2,14 +2,14 @@ require 'rails_helper'
 
 RSpec.describe "/api/transfers", type: :request do
   let(:initial_balance) { 10 }
-  let!(:destination) { Account.create(name: 'dest', balance: initial_balance) }
-  let!(:source) { Account.create(name: 'source', balance: initial_balance) }
-  let(:source_account_id) { source.id }
-  let(:destination_account_id) { destination.id }
+  let!(:destination) { AccountService.open({ name: 'dest', balance: initial_balance }) }
+  let!(:source) { AccountService.open({ name: 'source', balance: initial_balance }) }
+  let(:source_account_id) { source[:id] }
+  let(:destination_account_id) { destination[:id] }
   let(:amount) { 5.5 }
 
   describe 'post'do
-    subject { post('/api/transfers', params: trasnfer_params, headers: authorization_header(source)) }
+    subject { post('/api/transfers', params: trasnfer_params, headers: authorization_header(source[:id])) }
 
     let(:trasnfer_params) do
       {
@@ -49,11 +49,12 @@ RSpec.describe "/api/transfers", type: :request do
     context 'transfer succeeds' do
       it 'returns status created' do
         subject
-        source.reload
-        destination.reload
+        source_account = Account.find(source[:id])
+        destination_account = Account.find(destination[:id])
+
         expect(response).to have_http_status(:created)
-        expect(source.balance).to_not eq initial_balance
-        expect(destination.balance).to_not eq initial_balance
+        expect(source_account.balance).to_not eq initial_balance
+        expect(destination_account.balance).to_not eq initial_balance
       end
     end
   end

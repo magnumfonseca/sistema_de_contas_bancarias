@@ -10,7 +10,7 @@ RSpec.describe AccountService, type: :service do
     subject { described_class.find(account_params) }
 
     context 'with an existing account' do
-      let!(:pervious_account) { Account.create(account_params) }
+      let!(:pervious_account) { AccountService.open(account_params) }
 
       it 'returns account id and token' do
         response = { id: account_id, token: token } 
