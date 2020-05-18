@@ -1,4 +1,6 @@
 class TransactionService
+  @logger = Rails.logger
+
   class << self
     def transfer(source_account_id, destination_account_id, amount)
       Transaction.transaction do
@@ -15,6 +17,7 @@ class TransactionService
     def debit(source_account, destination_account, amount)
       return if  source_account == destination_account
 
+
       transaction_result = source_account.balance - BigDecimal(amount.to_s)
 
       raise InsufficientFundsException.new if transaction_result < 0
@@ -23,6 +26,8 @@ class TransactionService
       transaction.debit!
 
       source_account.update(balance: transaction_result) 
+
+      @logger.info("#{amount} debited to account #{source_account.id}")
     end
 
     def credit(source_account, destination_account, amount)
@@ -32,6 +37,8 @@ class TransactionService
       transaction.credit!
 
       destination_account.update(balance: transaction_result)
+
+      @logger.info("#{amount} credited to account #{destination_account.id}")
     end
 
     def generate_transaction(source_account, destination_account, amount)
