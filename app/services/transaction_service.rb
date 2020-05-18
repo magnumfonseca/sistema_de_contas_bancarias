@@ -20,7 +20,7 @@ class TransactionService
 
       transaction_result = source_account.balance - BigDecimal(amount.to_s)
 
-      raise InsufficientFundsException.new if transaction_result < 0
+      raise InsufficientFundsException.new("Insufficient funds") if transaction_result < 0
 
       transaction = generate_transaction(source_account, destination_account, amount)
       transaction.debit!
