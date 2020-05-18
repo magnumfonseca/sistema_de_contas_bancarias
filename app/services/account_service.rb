@@ -17,11 +17,13 @@ class AccountService
     def open(account_params)
       @logger.info("Creating a account with #{account_params}")
 
-      account = Account.new(account_params)
+      account = Account.new(id: account_params[:id], name: account_params[:name])
 
       return nil unless account.save
 
-      account.attributes.symbolize_keys.merge(token: generate_token(account.id))
+      TransactionService.transfer(account.id, account.id, account_params[:balance])
+
+      account.attributes.symbolize_keys.merge(token: generate_token(account.id)).merge(balance: account.balance)
     end
 
     private

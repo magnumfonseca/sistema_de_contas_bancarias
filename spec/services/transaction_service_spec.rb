@@ -6,7 +6,7 @@ RSpec.describe TransactionService, type: :service do
     let(:amount) { 10.0 }
 
     context 'when source_account does not exists' do
-      let!(:destination) { Account.create(name: 'dest', balance: 10) }
+      let!(:destination) { Account.create(name: 'dest') }
       let(:source_account_id) { rand(99..1000) }
       let(:destination_account_id) { destination.id }
 
@@ -16,7 +16,7 @@ RSpec.describe TransactionService, type: :service do
     end
 
     context 'when destination_account does not exists' do
-      let!(:source_account) { Account.create(name: 'source', balance: 10) }
+      let!(:source_account) { Account.create(name: 'source') }
       let(:destination_account_id) { rand(99..1000) }
       let(:source_account_id) { source_account.id }
 
@@ -27,8 +27,8 @@ RSpec.describe TransactionService, type: :service do
 
     context 'when source account has not enough balance' do
       context 'when source_account is different from destination account' do
-        let!(:destination) { Account.create(name: 'dest', balance: 10) }
-        let!(:source_account) { Account.create(name: 'source', balance: 5) }
+        let!(:destination) { Account.create(name: 'dest') }
+        let!(:source_account) { Account.create(name: 'source') }
 
         let(:source_account_id) { source_account.id }
         let(:destination_account_id) { destination.id }
@@ -39,11 +39,10 @@ RSpec.describe TransactionService, type: :service do
       end
 
       context 'when source_account and destination are the same' do
-        let!(:source_account) { Account.create(name: 'source', balance: balance) }
-        let(:balance) { 5 }
+        let!(:source_account) { Account.create(name: 'source') }
         let(:source_account_id) { source_account.id }
         let(:destination_account_id) { source_account.id }
-        let(:result_balance) { BigDecimal( (balance + amount).to_s ) }
+        let(:result_balance) { BigDecimal(amount.to_s) }
 
         before do
           subject
@@ -62,30 +61,57 @@ RSpec.describe TransactionService, type: :service do
       end
     end
 
-    context 'when source_account has enough balance' do
-      context 'when source_account is different from destination' do
-        let!(:source_account) { Account.create(name: 'source', balance: 15) }
-        let!(:destination_account) { Account.create(name: 'dest', balance: 10) }
+    context 'when amount is zero' do
+        let!(:source_account) { Account.create(name: 'source') }
+        let!(:destination_account) { Account.create(name: 'dest') }
 
         let(:source_account_id) { source_account.id }
         let(:destination_account_id) { destination_account.id }
-        let!(:result_source_balance) { BigDecimal( (source_account.balance - amount).to_s ) }
-        let!(:result_destination_balance) { BigDecimal( (destination_account.balance + amount).to_s ) }
+        let(:amount) { 0.0 }
 
-        before do
+        it 'does not transfer' do
           subject
 
-          source_account.reload
-          destination_account.reload
+          expect(source_account.balance).to be_zero
+          expect(destination_account.balance).to be_zero
+          expect(Transaction.count).to be_zero
+        end
+    end
+
+    context 'when source_account has enough balance' do
+      context 'when source_account is different from destination' do
+        let!(:source_account) { Account.create(name: 'source') }
+        let!(:destination_account) { Account.create(name: 'dest') }
+
+        let(:source_account_id) { source_account.id }
+        let(:destination_account_id) { destination_account.id }
+        let(:source_initial_balance) { 15 }
+        let(:destination_initial_balance) { 10 }
+
+        before do
+          Transaction.create(
+            source_account_id: source_account.id,
+            destination_account_id: source_account.id,
+            amount: source_initial_balance,
+            kind: Transaction.kinds[:credit]
+          )
+
+          Transaction.create(
+            source_account_id: destination_account.id,
+            destination_account_id: destination_account.id,
+            amount: destination_initial_balance,
+            kind: Transaction.kinds[:credit]
+          )
+
+          subject
         end
 
         it 'transfer from source to destination' do
           debit = Transaction.debit.last
           credit = Transaction.credit.last
 
-          expect(Transaction.count).to eq 2
-          expect(source_account.balance).to eq result_source_balance
-          expect(destination_account.balance).to eq result_destination_balance
+          expect(source_account.balance).to eq(source_initial_balance - amount)
+          expect(destination_account.balance).to eq(destination_initial_balance + amount)
           expect(debit.source_account).to eq source_account
           expect(debit.destination_account).to eq destination_account
           expect(debit.amount).to eq amount
