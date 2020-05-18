@@ -61,6 +61,23 @@ RSpec.describe TransactionService, type: :service do
       end
     end
 
+    context 'when amount is zero' do
+        let!(:source_account) { Account.create(name: 'source') }
+        let!(:destination_account) { Account.create(name: 'dest') }
+
+        let(:source_account_id) { source_account.id }
+        let(:destination_account_id) { destination_account.id }
+        let(:amount) { 0.0 }
+
+        it 'does not transfer' do
+          subject
+
+          expect(source_account.balance).to be_zero
+          expect(destination_account.balance).to be_zero
+          expect(Transaction.count).to be_zero
+        end
+    end
+
     context 'when source_account has enough balance' do
       context 'when source_account is different from destination' do
         let!(:source_account) { Account.create(name: 'source') }
