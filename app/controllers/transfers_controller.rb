@@ -1,17 +1,23 @@
 class TransfersController < ApplicationController
-  def create
-    begin 
-      TransactionService.transfer(
-        transfer_params[:source_account_id],
-        transfer_params[:destination_account_id],
-        transfer_params[:amount]
-      ) 
+  before_action :authorize_request
 
-      render status: :created
-    rescue ActiveRecord::RecordNotFound => not_found_ex
-      render not_found_ex.message,  status: :not_found
-    rescue InsufficientFundsException => insufficient_funds_ex
-      render "insufficient funds", status: :unprocessable_entity
+  def create
+    if transfer_params[:source_account_id] != @current_account.id.to_s
+      render status: :unauthorized 
+    else
+      begin
+        TransactionService.transfer(
+          transfer_params[:source_account_id],
+          transfer_params[:destination_account_id],
+          transfer_params[:amount]
+        ) 
+
+        render status: :created
+      rescue ActiveRecord::RecordNotFound => not_found_ex
+        render json: { errors: not_found_ex.message},  status: :not_found
+      rescue InsufficientFundsException => insufficient_funds_ex
+        render json: { errors: insufficient_funds_ex.message }, status: :unprocessable_entity
+      end
     end
   end
 

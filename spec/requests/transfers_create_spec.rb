@@ -9,7 +9,7 @@ RSpec.describe "/api/transfers", type: :request do
   let(:amount) { 5.5 }
 
   describe 'post'do
-    subject { post('/api/transfers', params: trasnfer_params) }
+    subject { post('/api/transfers', params: trasnfer_params, headers: authorization_header(source)) }
 
     let(:trasnfer_params) do
       {
@@ -22,9 +22,9 @@ RSpec.describe "/api/transfers", type: :request do
     context 'when source account does not exists' do
       let(:source_account_id) { rand(99..999) }
 
-      it 'returns status not found' do
+      it 'returns unauthorized' do
         subject
-        expect(response).to have_http_status(:not_found)
+        expect(response).to have_http_status(:unauthorized)
       end
     end
 
