@@ -1,28 +1,46 @@
-# README
-
-## Status CI
+# Sistema de Contas bancárias
 ![](https://github.com/magnumfonseca/sistema_de_contas_bancarias/workflows/CI/badge.svg)
 
+-   Simples sistema de conta bancárias em Ruby on Rails
+-   Rails 6 API com poucas depenências
+-   Container Docker para que setup do ambiente seja facilitado.
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
 
-Things you may want to cover:
+## Dependencias
 
-* Ruby version
+### JWT
+Uma implementação ruby do padrão RFC 7519 OAuth JSON Web Token (JWT). ([repositório](https://github.com/jwt/ruby-jwt))
 
-* System dependencies
+Utilizada para criar JWT para autenticaçaão da API.
 
-* Configuration
 
-* Database creation
+## Instalação
+```bash
+git clone https://github.com/magnumfonseca/sistema_de_contas_bancarias.git
+cd sistema_de_contas_bancarias
+bundle
+rails s
+```
 
-* Database initialization
+## Docker
 
-* How to run the test suite
+run:
+```bash
+docker-compose run web rake db:create db:migrate
+docker-compose up
+```
 
-* Services (job queues, cache servers, search engines, etc.)
+## API
+### Criar Conta
+```bash
+curl -H 'Content-Type: application/json' -d '{ "account": {"name": "account_name", "balance": "123.99"} }' -X POST 'http://localhost:3000/api/accounts'
+```
+### Transferência
+```bash
+curl -H 'Content-Type: application/json' -d '{"source_account_id": "id_da_conta_origem", "destination_account_id": "id_da_conta_destino", "amount": "9.99",}' -H "Authorization: Bearer <ACCESS_TOKEN>" -X POST 'http://localhost:3000/api/transfers'
+```
+### Saldo
+```bash
+curl -H 'Content-Type: application/json' -H "Authorization: Bearer <ACCESS_TOKEN>" -X GET 'http://localhost:3000/api/accounts/<ACCOUNT_ID>/balance'
+```
 
-* Deployment instructions
-
-* ...
