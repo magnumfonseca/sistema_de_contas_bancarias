@@ -5,7 +5,7 @@ ruby '2.6.4'
 
 gem 'rails', '~> 6.0.3'
 gem 'mysql2', '>= 0.4.4'
-gem 'puma', '~> 4.1'
+gem 'puma', '~> 4.3'
 
 gem 'bootsnap', '>= 1.4.2', require: false
 gem 'jwt'
